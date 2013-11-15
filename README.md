@@ -1,4 +1,17 @@
-# Lovebits - Find a lover who can code. 爱码#
+# Jima - Find Your Coding Partner#
 * aka the Coder Lover project *
 
-A place for girls to find coder lovers.
+About
+-----
+
+
+Features
+--------
+
+
+Guide
+-----
+
+
+Donation
+--------
