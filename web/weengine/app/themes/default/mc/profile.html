@@ -1,0 +1,337 @@
+{template 'common/header'}
+<style>
+	body{background:#d2e6e9; padding-bottom:63px; font-family:Helvetica, Arial, sans-serif;}
+	a{color:#666666;}a:hover{color:#3ebacc;}
+	.profile-box{padding:10px 0; background:transparent url('resource/images/home-bg.jpg') no-repeat; background-size:100% 100%;}
+	.form-header{clear:both;height:20px;line-height:15px;margin-left:15px; margin-top:20px;border-left:5px solid #000000;padding:5px;font-weight:bold;postion:relative;}
+	.nav-tabs>li.active>a, .nav-tabs>li.active>a:hover, .nav-tabs>li.active>a:focus{color: #3ebacc;}
+	.btn.btn-primary{background: #56c6d6; color: #FFF; border: 0;}
+	@media screen and (max-width: 767px) {.tpl-calendar div,.tpl-district-container div{margin-bottom:10px;} .empty{display:none;}}
+	.btn-group-top-box{padding:10px 0; border-bottom:1px solid #a5d7de;}
+	.btn-group-top{margin:0 auto; overflow:hidden; width:200px; display:block;}
+	.btn-group-top .btn{width:100px; -webkit-box-shadow:none; box-shadow:none; border-color:#5ac5d4; color:#5ac5d4; background:#d1e5e9;}
+	.btn-group-top .btn:hover{color:#FFF; background:#addbe1;}
+	.btn-group-top .btn.active{color:#FFF; background:#5ac5d4;}
+</style>
+<script>
+	require(['bootstrap'], function($){
+		$(function(){
+			$('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+				if($(e.target).attr('href') == '#tab2') {
+					$('#tab2').addClass('fadeInRight');
+					$('.more').addClass('active');
+					$('.basic').removeClass('active');
+				} else {
+					$('#tab1').addClass('fadeInLeft');
+					$('.more').removeClass('active');
+					$('.basic').addClass('active');
+				}
+			});
+		});
+	});
+</script>
+{template 'common/toolbar'}
+<div class="profile">
+	<div class="tabbable">
+		<div class="btn-group-top-box">
+			<div class="btn-group btn-group-top">
+				<a href="#tab1" data-toggle="tab" class="btn btn-default basic active">基本资料</a>
+				<a href="#tab2" data-toggle="tab" class="btn btn-default more">更多资料</a>
+			</div>
+		</div>
+		<div class="profile-box">
+		<form class="tab-content clearfix" action="{url 'mc/profile'}" method="post" enctype="multipart/form-data">
+		<input type="hidden" name="from_user" value="{$_W['fans']['from_user']}" />
+		<div class="tab-pane active animated" id="tab1">
+			<div class="form-group">
+				<label class="col-xs-12 col-sm-12 control-label">头像</label>
+				<div class="col-sm-12">
+					{php echo tpl_fans_form('avatar', $profile['avatar']);}
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-xs-12 col-sm-12 control-label">昵称</label>
+				<div class="col-sm-12">
+					{php echo tpl_fans_form('nickname',$profile['nickname'] );}
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-xs-12 col-sm-12 control-label">真实姓名</label>
+				<div class="col-sm-12">
+					{php echo tpl_fans_form('realname',$profile['realname'] );}
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-xs-12 col-sm-12 control-label">性别</label>
+				<div class="col-sm-12">
+					{php echo tpl_fans_form('gender',$profile['gender']);}
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-xs-12 col-sm-12 control-label">生日</label>
+				<div class="col-sm-12">
+					{php echo tpl_fans_form('birth',array('year' => $profile['birthyear'],'month' => $profile['birthmonth'],'day' => $profile['birthday']));}
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-xs-12 col-sm-12 control-label">户籍</label>
+				<div class="col-sm-12">
+					{php echo tpl_fans_form('reside',array('province' => $profile['resideprovince'],'city' => $profile['residecity'],'district' => $profile['residedist']));}
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-xs-12 col-sm-12 control-label">详细地址</label>
+				<div class="col-sm-12">
+					{php echo tpl_fans_form('address',$profile['address']);}
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-xs-12 col-sm-12 control-label">手机</label>
+				<div class="col-sm-12">
+					{if $profile['mobile']}
+					<input type="text" disabled value="{$profile['mobile']}" class="form-control">
+					{else}
+					{php echo tpl_fans_form('mobile',$profile['mobile']);}
+					{/if}
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-xs-12 col-sm-12 control-label">QQ</label>
+				<div class="col-sm-12">
+					{php echo tpl_fans_form('qq',$profile['qq']);}
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-xs-12 col-sm-12 control-label">Email</label>
+				<div class="col-sm-12">
+					{if $profile['email']}
+					<input type="text" disabled value="{$profile['email']}" class="form-control">
+					{else}
+					{php echo tpl_fans_form('email',$profile['email']);}
+					{/if}
+				</div>
+			</div>
+		</div>
+
+		<div class="tab-pane animated" id="tab2">
+		<h5 class="form-header">联系方式</h5>
+		{if isset($profile['telephone'])}
+		<div class="form-group">
+			<label class="col-xs-12 col-sm-12 control-label">固定电话</label>
+			<div class="col-sm-12">
+				{php echo tpl_fans_form('telephone',$profile['telephone']);}
+			</div>
+		</div>
+		{/if}
+		{if isset($profile['msn'])}
+		<div class="form-group">
+			<label class="col-xs-12 col-sm-12 control-label">MSN</label>
+			<div class="col-sm-12">
+				{php echo tpl_fans_form('msn',$profile['msn']);}
+			</div>
+		</div>
+		{/if}
+		{if isset($profile['taobao'])}
+		<div class="form-group">
+			<label class="col-xs-12 col-sm-12 control-label">阿里旺旺</label>
+			<div class="col-sm-12">
+				{php echo tpl_fans_form('taobao',$profile['taobao']);}
+			</div>
+		</div>
+		{/if}
+		{if isset($profile['alipay'])}
+		<div class="form-group">
+			<label class="col-xs-12 col-sm-12 control-label">支付宝帐号</label>
+			<div class="col-sm-12">
+				{php echo tpl_fans_form('alipay',$profile['alipay']);}
+			</div>
+		</div>
+		{/if}
+		<h5 class="form-header empty" style="border:none;"></h5>
+		{if isset($profile['studentid'])}
+		<h5 class="form-header">教育情况</h5>
+		<div class="form-group">
+			<label class="col-xs-12 col-sm-12 control-label">学号</label>
+			<div class="col-sm-12">
+				{php echo tpl_fans_form('studentid',$profile['studentid']);}
+			</div>
+		</div>
+		{/if}
+		{if isset($profile['grade'])}
+		<div class="form-group">
+			<label class="col-xs-12 col-sm-12 control-label">班级</label>
+			<div class="col-sm-12">
+				{php echo tpl_fans_form('grade',$profile['grade']);}
+			</div>
+		</div>
+		{/if}
+		{if isset($profile['graduateschool'])}
+		<div class="form-group">
+			<label class="col-xs-12 col-sm-12 control-label">毕业学校</label>
+			<div class="col-sm-12">
+				{php echo tpl_fans_form('graduateschool',$profile['graduateschool']);}
+			</div>
+		</div>
+		{/if}
+		{if isset($profile['education'])}
+		<div class="form-group">
+			<label class="col-xs-12 col-sm-12 control-label">学历</label>
+			<div class="col-sm-12">
+				{php echo tpl_fans_form('education',$profile['education']);}
+			</div>
+		</div>
+		{/if}
+		<h5 class="form-header empty" style="border:none;"></h5>
+		{if isset($profile['company'])}
+		<h5 class="form-header">工作情况</h5>
+		<div class="form-group">
+			<label class="col-xs-12 col-sm-12 control-label">公司</label>
+			<div class="col-sm-12">
+				{php echo tpl_fans_form('company',$profile['company']);}
+			</div>
+		</div>
+		{/if}
+		{if isset($profile['occupation'])}
+		<div class="form-group">
+			<label class="col-xs-12 col-sm-12 control-label">职业</label>
+			<div class="col-sm-12">
+				{php echo tpl_fans_form('occupation',$profile['occupation']);}
+			</div>
+		</div>
+		{/if}
+		{if isset($profile['position'])}
+		<div class="form-group">
+			<label class="col-xs-12 col-sm-12 control-label">职位</label>
+			<div class="col-sm-12">
+				{php echo tpl_fans_form('position',$profile['position']);}
+			</div>
+		</div>
+		{/if}
+		{if isset($profile['revenue'])}
+		<div class="form-group">
+			<label class="col-xs-12 col-sm-12 control-label">年收入</label>
+			<div class="col-sm-12">
+				{php echo tpl_fans_form('revenue',$profile['revenue']);}
+			</div>
+		</div>
+		{/if}
+		<h5 class="form-header empty" style="border:none;"></h5>
+		{if isset($profile['constellation'])}
+		<h5 class="form-header">个人情况</h5>
+		<div class="form-group">
+			<label class="col-xs-12 col-sm-12 control-label">星座</label>
+			<div class="col-sm-12">
+				{php echo tpl_fans_form('constellation',$profile['constellation']);}
+			</div>
+		</div>
+		{/if}
+		{if isset($profile['zodiac'])}
+		<div class="form-group">
+			<label class="col-xs-12 col-sm-12 control-label">生肖</label>
+			<div class="col-sm-12">
+				{php echo tpl_fans_form('zodiac',$profile['zodiac']);}
+			</div>
+		</div>
+		{/if}
+		{if isset($profile['nationality'])}
+		<div class="form-group">
+			<label class="col-xs-12 col-sm-12 control-label">国籍</label>
+			<div class="col-sm-12">
+				{php echo tpl_fans_form('nationality',$profile['nationality']);}
+			</div>
+		</div>
+		{/if}
+		{if isset($profile['height'])}
+		<div class="form-group">
+			<label class="col-xs-12 col-sm-12 control-label">身高</label>
+			<div class="col-sm-12">
+				{php echo tpl_fans_form('height',$profile['height']);}
+			</div>
+		</div>
+		{/if}
+		{if isset($profile['weight'])}
+		<div class="form-group">
+			<label class="col-xs-12 col-sm-12 control-label">体重</label>
+			<div class="col-sm-12">
+				{php echo tpl_fans_form('weight',$profile['weight']);}
+			</div>
+		</div>
+		{/if}
+		{if isset($profile['bloodtype'])}
+		<div class="form-group">
+			<label class="col-xs-12 col-sm-12 control-label">血型</label>
+			<div class="col-sm-12">
+				{php echo tpl_fans_form('bloodtype',$profile['bloodtype']);}
+			</div>
+		</div>
+		{/if}
+		{if isset($profile['idcard'])}
+		<div class="form-group">
+			<label class="col-xs-12 col-sm-12 control-label">身份证号</label>
+			<div class="col-sm-12">
+				{php echo tpl_fans_form('idcard',$profile['idcard']);}
+			</div>
+		</div>
+		{/if}
+		{if isset($profile['zipcode'])}
+		<div class="form-group">
+			<label class="col-xs-12 col-sm-12 control-label">邮编</label>
+			<div class="col-sm-12">
+				{php echo tpl_fans_form('zipcode',$profile['zipcode']);}
+			</div>
+		</div>
+		{/if}
+		{if isset($profile['site'])}
+		<div class="form-group">
+			<label class="col-xs-12 col-sm-12 control-label">个人主页</label>
+			<div class="col-sm-12">
+				{php echo tpl_fans_form('site',$profile['site']);}
+			</div>
+		</div>
+		{/if}
+		{if isset($profile['affectivestatus'])}
+		<div class="form-group">
+			<label class="col-xs-12 col-sm-12 control-label">情感状态</label>
+			<div class="col-sm-12">
+				{php echo tpl_fans_form('affectivestatus',$profile['affectivestatus']);}
+			</div>
+		</div>
+		{/if}
+		{if isset($profile['lookingfor'])}
+		<div class="form-group">
+			<label class="col-xs-12 col-sm-12 control-label">交友目的</label>
+			<div class="col-sm-12">
+				{php echo tpl_fans_form('lookingfor',$profile['lookingfor']);}
+			</div>
+		</div>
+		{/if}
+		{if isset($profile['bio'])}
+		<div class="form-group">
+			<label class="col-xs-12 col-sm-12 control-label">自我介绍</label>
+			<div class="col-sm-12">
+				{php echo tpl_fans_form('bio',$profile['bio']);}
+			</div>
+		</div>
+		{/if}
+		{if isset($profile['interest'])}
+		<div class="form-group">
+			<label class="col-xs-12 col-sm-12 control-label">兴趣爱好</label>
+			<div class="col-sm-12">
+				{php echo tpl_fans_form('interest',$profile['interest']);}
+			</div>
+		</div>
+		{/if}
+		</div>
+		<div class="form-group">
+			<label class="col-xs-12 col-sm-12 control-label"></label>
+			<div class="col-sm-12" style="text-align:center">
+				<button type="submit" class="btn btn-primary btn-block" name="submit" value="提交">提交</button>
+				<input type="hidden" name="token" value="{$_W['token']}" />
+			</div>
+		</div>
+		</form>
+		</div>
+	</div>
+</div>
+{template 'mc/footer'}
+{template 'common/footer'}

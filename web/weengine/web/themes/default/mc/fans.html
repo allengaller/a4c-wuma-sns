@@ -1,0 +1,248 @@
+{php $newUI = true;}
+{template 'common/header'}
+<style>
+.table>thead>tr>td, .table>tbody>tr>td, .table>tfoot>tr>td{white-space:nowrap;}
+</style>
+<ul class="nav nav-tabs">
+	<li {if $do == 'display'}class="active"{/if}><a href="{php echo url('mc/fans/display');}">粉丝列表</a></li>
+	{if $do == 'view' && !empty($fanid)}<li class="active"><a href="{php echo url('mc/fans/view', array('id' => $fanid));}">粉丝详情</a></li>{/if}
+</ul>
+{if $do == 'display'}
+<script type="text/javascript">
+	var running = false;
+	window.onbeforeunload = function(e) {
+		if(running) {
+			return (e || window.event).returnValue = '正在进行粉丝数据同步中, 离开此页面将会中断操作.';
+		}
+	}
+	
+	require(['angular', 'jquery', 'util'], function(angular, $, u){
+		$('#form1').submit(function(){
+			if($(":checkbox[name='delete[]']:checked").size() > 0){
+				return confirm('删除后不可恢复，您确定删除吗？');
+			}
+			alert('没有选择粉丝');
+			return false;
+		});
+		angular.module('app', []).controller('advAPI', function($scope, $http) {
+			$scope.adv = {
+				running : false,
+				syncState : '',
+				downloadState : '',
+				enabled : {if $account && ($account['type'] == '1' && $account['level'] == '2')}true{else}false{/if}
+			};	
+			$scope.sync = function(){
+				if($(":checkbox:checked").size() <= 0){
+					alert('没有选择粉丝');
+					return;
+				}
+				u.message('正在同步粉丝信息<br>请不要离开页面或进行其他操作,同步成功后系统会自动刷新本页面');
+				$scope.adv.running = running = true;
+				var fanids = [];
+				$(':checkbox:checked').each(function(){
+					var fanid = parseInt($(this).val());
+					if(!isNaN(fanid)) {
+						fanids.push(fanid);
+					}
+				});
+				var params = {};
+				params.method = 'sync';
+				params.fanids = fanids;
+				$http.post(location.href, params).success(function(dat){
+					$scope.adv.running = running = false;
+					if(dat == 'success') {
+						location.reload();
+					} else {
+						message('未知错误, 请稍后重试.', location.href, 'error')
+					}
+				});
+			};
+			$scope.download = function(next, count){
+				$scope.adv.running = running = true;
+				var params = {};
+				params.method = 'download';
+				if(next) {
+					params.next = next;
+				}
+				if(!count) {
+					count = 0;
+				}
+				$http.post(location.href, params).success(function(dat){
+					if(!angular.isObject(dat)) {
+						message('执行错误, 请稍后重试', location.href);
+						return;
+					}
+					count += dat.count;
+					if(dat.total <= count) {
+						location.reload();
+						$scope.adv.downloadState = '';
+						$scope.adv.running = running = false;
+					} else {
+						$scope.download(dat.next, count);
+						$scope.adv.downloadState = '(' + count + '/' + dat.total + ')';
+					}
+				});
+			}
+		});
+		angular.bootstrap(document, ['app']);
+	});		
+</script>
+<div class="clearfix">
+	<div class="panel panel-info">
+		<div class="panel-heading">筛选</div>
+		<div class="panel-body">
+			<form action="./index.php" method="get" class="form-horizontal" role="form">
+				<input type="hidden" name="c" value="mc" />
+				<input type="hidden" name="a" value="fans" />
+				<div class="form-group">
+					<label class="col-xs-12 col-sm-3 col-md-2 control-label">状态</label>
+					<div class="col-sm-9 col-md-8 col-lg-8">
+						<select class="form-control" name="acid">
+							<option value="">所有公众号</option>
+							{loop $accounts $acc}
+							<option value="{$acc['acid']}"{if $acc['acid'] == $acid} selected="selected"{/if}>{$acc['name']}</option>
+							{/loop}
+						</select>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="col-xs-12 col-sm-3 col-md-2 control-label">用户组</label>
+					<div class="col-sm-9 col-md-8 col-lg-8">
+						<label class="radio-inline">
+							<input type="radio" name="type" value="" {if $type == ''}checked="checked"{/if}/> 不指定
+						</label>
+						<label class="radio-inline">
+							<input type="radio" name="type" value="bind" {if $type == 'bind'}checked="checked"{/if}/> 已经注册为会员
+						</label>
+						<label class="radio-inline">
+							<input type="radio" name="type" value="unbind" {if $type == 'unbind'}checked="checked"{/if}/> 未注册为会员
+						</label>
+					</div>
+					<div class="pull-right col-xs-12 col-sm-3 col-md-2 col-lg-2">
+						<button class="btn btn-default"><i class="fa fa-search"></i> 搜索</button>
+					</div>
+				</div>
+				<div class="form-group">
+				</div>
+			</form>
+		</div>
+	</div>
+	<form action="?{$_SERVER['QUERY_STRING']}" method="post" id="form1">
+	<div class="panel panel-default">
+	<div class="panel-body table-responsive">
+		<table class="table table-hover" ng-controller="advAPI" style="width:100%;" cellspacing="0" cellpadding="0">
+			<thead class="navbar-inner">
+				<tr>
+					<th style="width:30px;">删？</th>
+					<th style="width:90px;">头像</th>
+					<th style="width:150px;">昵称</th>
+					<th style="width:180px;">对应用户</th>
+					<th style="width:80px;">是否关注</th>
+					<th style="width:180px;">关注时间</th>
+					<th style="width:120px;">来源公众号</th>
+					<th style="min-width:70px;" class="text-right">操作</th>
+				</tr>
+			</thead>
+			<tbody>
+				{loop $list $item}
+				<tr>
+					<td><input type="checkbox" name="delete[]" value="{$item['fanid']}" /></td>
+					<td><img src="{if !empty($item['user']['avatar'])}{$item['user']['avatar']}{else}resource/images/noavatar_middle.gif{/if}" width="48"></td>
+					<td>{if !empty($item['user']['nickname'])}{$item['user']['nickname']}{/if}</td>
+					<td>
+						{if empty($item['uid'])}
+							<a href="{php echo url('mc/member/post', array('uid' => $item['uid'],'openid' => $item['openid'], 'fanid' => $item['fanid']));}" class="text-danger" title="该用户尚未注册会员，请为其手动注册！">[ 注册为会员 ]</a>
+						{else}
+							<a href="{php echo url('mc/member/post', array('uid'=>$item['uid']));}"><span>{$item['user']['niemmo']}</span></a>
+						{/if}
+					</td>
+					<td>{if $item['follow'] == '1'} <span class="label label-success" >已关注 </span> {elseif $item['followtime'] <> '0'} <span class="label label-warning" >取消关注 </span>{else}<span class="label label-danger">未关注 </span>{/if}</td>
+					<td>
+						{if $item['follow'] == '1' && $item['followtime'] <> '0'}  {php echo date('Y-m-d H:i:s', $item['followtime'])}{/if}
+					</td>
+					<td>{$item['account']}</td>
+					<td class="text-right">
+						<a href="{php echo url('mc/fans/view', array('id' => $item['fanid']));}" class="btn btn-default btn-sm">查看详情</a>
+					</td>
+				</tr>
+				{/loop}
+			</tbody>
+			<tr>
+				<th>
+					<input type="checkbox" onclick="var ck = this.checked;$(':checkbox').each(function(){this.checked = ck});" />
+				</th>
+				<td colspan="7">
+					<input name="token" type="hidden" value="{$_W['token']}" />
+					<input type="submit" class="btn btn-primary span2" name="submit" value="删除" /> &nbsp; 
+					<input type="button" class="btn btn-default" name="submit" value="同步粉丝信息{{adv.enabled ? (adv.running ? adv.syncState : '') : '({if empty($account)}请指定公众号{else}需要高级接口{/if})'}}" ng-click="sync();" ng-disabled="!adv.enabled || adv.running" /> &nbsp;
+					<input type="button" class="btn btn-default" name="submit" value="下载所有粉丝{{adv.enabled ? (adv.running ? adv.downloadState : '') : '({if empty($account)}请指定公众号{else}需要高级接口{/if})'}}" ng-click="download();" ng-disabled="!adv.enabled || adv.running" />
+				</td>
+			</tr>
+			<tr>
+				<td colspan="8">
+					<span class="help-block">同步粉丝信息: 选定粉丝后, 访问公众平台获取特定粉丝的相关资料, 如果已对应用户, 那么将会把未登记的资料填充至关联用户. 需要为认证微信服务号, 或者高级易信号</span>
+					<span class="help-block">下载所有粉丝: 访问公众平台下载所有粉丝列表(这个操作不能获取粉丝资料, 只能获取粉丝标志). 需要为认证微信服务号, 或者高级易信号</span>
+				</td>
+			</tr>
+		</table>
+	</div>
+	</div>
+	{$pager}
+	</form>
+</div>
+<script>
+	$('.btn, .title').hover(function(){
+		$(this).tooltip('show');
+	},function(){
+		$(this).tooltip('hide');
+	});
+</script>
+{/if}
+{if $do == 'view'}
+<div class="form-horizontal form">
+	<div class="panel panel-default">
+		<div class="panel-heading">
+			粉丝详情
+		</div>
+		<div class="panel-body">
+			<div class="form-group">
+				<label class="col-xs-12 col-sm-3 col-md-2 control-label">对应会员</label>
+				<div class="col-sm-10">
+					<span class="help-block">{if empty($row['uid'])}{$row['user']}{else}<a href="{php echo url('mc/member/post', array('uid'=>$row['uid']));}">{$row['user']}</a>{/if}</span>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-xs-12 col-sm-3 col-md-2 control-label">粉丝编号</label>
+				<div class="col-sm-10">
+					<span class="help-block">{$row['openid']}</span>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-xs-12 col-sm-3 col-md-2 control-label">所属公众号</label>
+				<div class="col-sm-10">
+					<span class="help-block">{$row['account']}</span>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-xs-12 col-sm-3 col-md-2 control-label">是否关注</label>
+				<div class="col-sm-10">
+					<span class="help-block">{if $row['follow'] == '1'} <span class="label label-success" >已订阅 </span> {else} <span class="label label-danger" >未订阅 </span>{/if}</span>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-xs-12 col-sm-3 col-md-2 control-label">关注时间</label>
+				<div class="col-sm-10">
+					<span class="help-block">{if $row['followtime'] <> '0'}  {php echo date('Y-m-d H:i:s', $row['followtime'])} {else} <span class="label label-danger" >未记录 </span> {/if}</span>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-xs-12 col-sm-3 col-md-2 control-label"></label>
+				<div class="col-sm-10">
+					<span class="help-block"><a href="javascript:history.go(-1);" class="btn btn-primary">返回</a></span>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+{/if}
+{template 'common/footer'}

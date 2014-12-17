@@ -1,0 +1,34 @@
+{template 'common/header'}
+<ul class="nav nav-tabs">
+	{loop $creditnames['creditnames'] $index $creditname}
+		<li {if $type == $index} class="active"{/if}><a href="{php echo url('mc/creditmanage/credit_record', array('type' => $index, 'uid' => $uid));}">{$creditname['title']}</a></li>
+	{/loop}
+</ul>
+<div class="panel panel-default">
+	<div class=" panel-body table-responsive">
+		<table class="table table-hover">
+			<thead>
+				<tr>
+					<th style="width:100px">积分类型</th>
+					<th style="width:100px">操作员</th>
+					<th style="width:100px">积分数量</th>
+					<th style="width:200px">操作时间</th>
+					<th>备注</th>
+				</tr>
+			</thead>
+			<tbody>
+				{loop $data $da}
+					<tr>
+						<td>{$creditnames['creditnames'][$type]['title']}</td>	
+						<td>{if $da['username']}{$da['username']}{else}本人{/if}</td>	
+						<td>{$da['num']}</td>	
+						<td>{php echo date('Y-m-d H:i:s', $da['createtime'])}</td>	
+						<td>{$da['remark']}</td>	
+					</tr>
+				{/loop}
+			</tbody>
+		</table>
+	</div>
+</div>
+{$pager}
+{template 'common/footer'}

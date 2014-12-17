@@ -1,0 +1,15 @@
+{template 'common/header'}
+<style type="text/css">
+body{padding:0;margin:0;background-image:url('{if empty($_W['styles']['indexbgimg'])}./themes/default/images/bg_index.jpg{else}{$_W['styles']['indexbgimg']}{/if}');background-size:cover;}
+.home-container{width:58%;overflow:hidden;margin:.6em .3em;}
+.home-container .box-item{float:left;display:block;text-decoration:none;outline:none;width:5em;height:6em;margin:.1em;color:#cccccc;background:rgba(0, 0, 0, 0.3);text-align:center;}
+.home-container span{display:block;}.home-container span{display:block; width:90%; margin:0 5%;  overflow:hidden; height:20px; line-height:20px;}
+.home-container i{display:block;height:45px; margin: 5px auto; font-size:35px; padding-top:10px; width:45px;}
+.footer{color:#dddddd;}
+</style>
+<div class="home-container">
+	{data func="site_navs" item="row"}
+	{$row['html']}
+	{/data}
+</div>
+{template 'common/footer'}

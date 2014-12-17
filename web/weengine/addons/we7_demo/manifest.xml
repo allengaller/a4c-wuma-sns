@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns="http://www.we7.cc" versionCode="0.6">
+	<application setting="true">
+		<name><![CDATA[官方示例]]></name>
+		<identifie><![CDATA[we7_demo]]></identifie>
+		<version><![CDATA[1.0]]></version>
+		<type><![CDATA[other]]></type>
+		<ability><![CDATA[此模块提供基本的功能展示]]></ability>
+		<description><![CDATA[此模块提供基本的功能展示]]></description>
+		<author><![CDATA[微擎团队]]></author>
+		<url><![CDATA[http://bbs.we7.cc/]]></url>
+	</application>
+	<platform>
+		<subscribes>
+			<message type="text" />
+			<message type="image" />
+			<message type="voice" />
+			<message type="video" />
+			<message type="location" />
+			<message type="link" />
+			<message type="subscribe" />
+			<message type="unsubscribe" />
+			<message type="qr" />
+			<message type="trace" />
+			<message type="click" />
+			<message type="view" />
+			<message type="enter" />
+		</subscribes>
+		<handles>
+			<message type="location" />
+			<message type="text" />
+		</handles>
+		<rule embed="true" />
+	</platform>
+	<bindings>
+		<cover>
+			<entry title="入口1" do="index1" state="" direct="false" />
+			<entry title="入口2（不需登录）" do="index2" state="" direct="true" />
+		</cover>
+		<menu>
+			<entry title="管理1" do="manage1" state="" direct="false" />
+			<entry title="管理2" do="manage2" state="" direct="false" />
+		</menu>
+		<home>
+			<entry title="导航1" do="nav1" state="" direct="false" />
+			<entry title="导航2" do="nav2" state="" direct="false" />
+		</home>
+		<profile>
+			<entry title="中心1" do="uc1" state="" direct="false" />
+			<entry title="中心2" do="uc2" state="" direct="false" />
+		</profile>
+		<shortcut>
+			<entry title="快捷1" do="quick1" state="" direct="false" />
+			<entry title="快捷2" do="quick2" state="" direct="false" />
+		</shortcut>
+		<function>
+			<entry title="页面1" do="direct1" state="" direct="false" />
+		</function>
+	</bindings>
+	<install><![CDATA[
+CREATE TABLE IF NOT EXISTS `ims_we7_demo_reply` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `rid` int(10) unsigned NOT NULL DEFAULT '0',
+  `content` varchar(1000) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_rid` (`rid`)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+	]]></install>
+	<uninstall><![CDATA[
+DROP TABLE ims_we7_demo_reply;
+	]]></uninstall>
+	<upgrade><![CDATA[]]></upgrade>
+</manifest>
