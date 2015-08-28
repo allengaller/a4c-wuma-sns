@@ -1,5 +1,5 @@
-# Jima - Find Your Coding Partner #
-# 基情码农 - 找到你的好基友 #
+# Wuma - Find Your Coding Partner #
+# 无码 - 基于微信公众平台的社交平台 #
 * aka the Coder Lover and LoveBits project *
 
 About
